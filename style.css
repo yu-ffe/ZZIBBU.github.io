@@ -2998,3 +2998,373 @@ body:has(.link-cards-container) {
     font-size: 14px;
   }
 }
+
+/* ===== Book2 일기 북 ===== */
+.book2-body {
+  background: linear-gradient(135deg, #fffafb 0%, #fff5f8 100%);
+  padding: 20px;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.book2-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.book2-spread {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: linear-gradient(135deg, #ffffff 0%, #fffafb 100%);
+  border-radius: 20px;
+  border: 1.5px solid #ffe0e8;
+  box-shadow: 0 8px 32px rgba(255, 182, 193, 0.15);
+  overflow: hidden;
+  min-height: 650px;
+  position: relative;
+}
+
+.book2-spread::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent 0%, #ffe0e8 20%, #ffe0e8 80%, transparent 100%);
+  transform: translateX(-50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.book2-page {
+  background: linear-gradient(135deg, #ffffff 0%, #fff5f8 100%);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  min-height: 650px;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.book2-page-left {
+  border-right: 1px solid #ffe0e8;
+}
+
+.book2-page-right {
+  border-left: 1px solid #ffe0e8;
+}
+
+.book2-page-header {
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1.5px solid #ffe0e8;
+}
+
+.book2-page-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #c2185b;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 2px rgba(255, 182, 193, 0.2);
+}
+
+/* 왼쪽 페이지: 일기 보기 */
+.book2-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+}
+
+.book2-entry {
+  background: linear-gradient(135deg, #fff5f8 0%, #ffeef5 100%);
+  border: 1.5px solid #ffe0e8;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.1);
+  transition: all 0.3s ease;
+}
+
+.book2-entry:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 182, 193, 0.2);
+  border-color: #ffc0cb;
+}
+
+.book2-entry-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #c2185b;
+  background: linear-gradient(135deg, #ffeef5 0%, #ffe0e8 100%);
+  padding: 6px 12px;
+  border-radius: 10px;
+  display: inline-block;
+  margin-bottom: 14px;
+  border: 1px solid #ffd6e5;
+  box-shadow: 0 2px 4px rgba(255, 182, 193, 0.15);
+}
+
+.book2-entry-content {
+  min-height: 100px;
+}
+
+.book2-empty {
+  text-align: center;
+  padding: 30px 20px;
+  color: #d4a5c0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.book2-entry-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.book2-entry-date {
+  font-size: 13px;
+  font-weight: 600;
+  color: #8b6f7a;
+  padding: 4px 10px;
+  background: #fffef0;
+  border-radius: 8px;
+  display: inline-block;
+  width: fit-content;
+  border: 1px solid #ffeaa7;
+}
+
+.book2-entry-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #c2185b;
+  letter-spacing: 0.2px;
+  line-height: 1.4;
+}
+
+.book2-entry-text {
+  font-size: 15px;
+  color: #5a4a52;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.book2-entry-image {
+  margin-top: 8px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1.5px solid #ffe0e8;
+  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.15);
+}
+
+.book2-entry-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  max-height: 300px;
+}
+
+/* 오른쪽 페이지: 일기 작성 */
+.book2-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+}
+
+.book2-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.book2-field-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #c2185b;
+  letter-spacing: 0.1px;
+}
+
+.book2-form-field input[type="date"],
+.book2-form-field input[type="text"],
+.book2-form-field textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #ffe0e8;
+  border-radius: 12px;
+  font-size: 15px;
+  font-family: inherit;
+  background: #ffffff;
+  color: #111827;
+  transition: all 0.2s ease;
+}
+
+.book2-form-field input[type="date"]:focus,
+.book2-form-field input[type="text"]:focus,
+.book2-form-field textarea:focus {
+  outline: none;
+  border-color: #ff9ec5;
+  background: #fffafb;
+  box-shadow: 0 0 0 3px rgba(255, 158, 197, 0.15);
+}
+
+.book2-form-field input[type="date"] {
+  cursor: pointer;
+}
+
+.book2-form-field input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.7;
+  filter: brightness(0) saturate(100%) invert(60%) sepia(90%) saturate(2000%) hue-rotate(320deg) brightness(0.9) contrast(1.1);
+  width: 20px;
+  height: 20px;
+  margin-left: 8px;
+}
+
+.book2-form-field input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.book2-form-field input::placeholder,
+.book2-form-field textarea::placeholder {
+  color: #a3a3a3;
+}
+
+.book2-form-field textarea {
+  resize: vertical;
+  min-height: 200px;
+  line-height: 1.7;
+}
+
+.book2-form-field input[type="file"] {
+  padding: 10px;
+  border: 1.5px dashed #ffe0e8;
+  border-radius: 12px;
+  background: #fffafb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.book2-form-field input[type="file"]:hover {
+  border-color: #ff9ec5;
+  background: #fff5f8;
+}
+
+.book2-image-preview-container {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.book2-image-preview {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1.5px solid #ffe0e8;
+  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.15);
+}
+
+.book2-remove-image-btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 1.5px solid #fecaca;
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: fit-content;
+}
+
+.book2-remove-image-btn:hover {
+  background: #fecaca;
+  border-color: #fca5a5;
+  transform: translateY(-1px);
+}
+
+.book2-form-actions {
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.book2-submit-btn {
+  width: 100%;
+  padding: 14px 24px;
+  border-radius: 12px;
+  border: 1.5px solid #ff9ec5;
+  background: linear-gradient(135deg, #ffd6e5 0%, #ffc0cb 100%);
+  color: #c2185b;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(255, 158, 197, 0.3);
+}
+
+.book2-submit-btn:hover {
+  background: linear-gradient(135deg, #ffc0cb 0%, #ff9ec5 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 158, 197, 0.4);
+}
+
+.book2-submit-btn:active {
+  transform: translateY(0);
+}
+
+/* 스크롤바 스타일 */
+.book2-page::-webkit-scrollbar {
+  width: 6px;
+}
+
+.book2-page::-webkit-scrollbar-track {
+  background: #fff5f8;
+  border-radius: 10px;
+}
+
+.book2-page::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #ff9ec5 0%, #ff7eb3 100%);
+  border-radius: 10px;
+}
+
+.book2-page::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ff7eb3 0%, #ff6ba8 100%);
+}
+
+/* 반응형 */
+@media (max-width: 960px) {
+  .book2-spread {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .book2-page-left,
+  .book2-page-right {
+    border: 1.5px solid #ffe0e8;
+    border-radius: 14px;
+    min-height: 500px;
+  }
+
+  .book2-page-left {
+    border-right: 1.5px solid #ffe0e8;
+    border-bottom: none;
+  }
+
+  .book2-page-right {
+    border-left: 1.5px solid #ffe0e8;
+    border-top: 1.5px solid #ffe0e8;
+  }
+}
+

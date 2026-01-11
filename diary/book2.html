@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>일기 북</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body class="book2-body">
+  <div class="book2-container">
+    <div class="book2-spread">
+      <!-- 왼쪽 페이지: 일기 보기 -->
+      <div class="book2-page book2-page-left">
+        <div class="book2-page-header">
+          <h2>지난 일기</h2>
+        </div>
+        <div class="book2-entries">
+          <!-- 어제 일기 -->
+          <div class="book2-entry" id="entry-yesterday">
+            <div class="book2-entry-label">어제</div>
+            <div class="book2-entry-content" id="yesterday-content">
+              <div class="book2-empty">어제 일기가 없습니다.</div>
+            </div>
+          </div>
+
+          <!-- 그제~일주일 전 일기 -->
+          <div class="book2-entry" id="entry-prior">
+            <div class="book2-entry-label">그제~일주일 전</div>
+            <div class="book2-entry-content" id="prior-content">
+              <div class="book2-empty">일기가 없습니다.</div>
+            </div>
+          </div>
+
+          <!-- 랜덤 일기 -->
+          <div class="book2-entry" id="entry-random">
+            <div class="book2-entry-label">랜덤</div>
+            <div class="book2-entry-content" id="random-content">
+              <div class="book2-empty">일기가 없습니다.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 오른쪽 페이지: 일기 작성 -->
+      <div class="book2-page book2-page-right">
+        <div class="book2-page-header">
+          <h2>일기 쓰기</h2>
+        </div>
+        <form id="book2-diary-form" class="book2-form">
+          <div class="book2-form-field">
+            <label class="book2-field-label">날짜</label>
+            <input type="date" name="entryDate" id="book2-entry-date" required />
+          </div>
+
+          <div class="book2-form-field">
+            <label class="book2-field-label">제목</label>
+            <input type="text" name="entryTitle" id="book2-entry-title" placeholder="오늘의 키워드" required />
+          </div>
+
+          <div class="book2-form-field">
+            <label class="book2-field-label">내용</label>
+            <textarea name="entryContent" id="book2-entry-content" rows="8" placeholder="자유롭게 기록하세요..." required></textarea>
+          </div>
+
+          <div class="book2-form-field">
+            <label class="book2-field-label">사진</label>
+            <input type="file" name="entryImage" id="book2-image-input" accept="image/*" />
+            <div id="book2-image-preview-container" class="book2-image-preview-container" style="display: none;">
+              <img id="book2-image-preview" class="book2-image-preview" />
+              <button type="button" id="book2-remove-image-btn" class="book2-remove-image-btn">사진 제거</button>
+            </div>
+          </div>
+
+          <div class="book2-form-actions">
+            <button type="submit" class="book2-submit-btn">저장하기</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./book2.js"></script>
+</body>
+</html>
