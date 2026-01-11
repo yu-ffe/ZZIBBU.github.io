@@ -6,7 +6,7 @@ const localResolvedKey = 'haezzi-widget-resolved' // ✅ 자동으로 찾은 테
 
 const defaultSupabaseConfig = {
   url: 'https://rpbkrbqbvcamhuhzupdw.supabase.co',
-  key: 'sb_publishable_pm_hrlt-nEuzhXwPAgmrUA_7rXPfPTl'
+  key: 'sb_publishable_v6VcztgYXxFiBwI3TSRHUg_K1-VhDWs'
 }
 
 const demoDiaries = [
