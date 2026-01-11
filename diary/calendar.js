@@ -83,7 +83,7 @@ function renderCalendar() {
     cell.innerHTML = `
       <div class="number">${day.getDate()}</div>
       <div class="markers">
-        <div class="dots">${dots}</div>
+        ${eventCount > 0 ? `<div class="dots">${dots}</div>` : ''}
         ${hasDiary ? '<span class="diary-flag done">✓</span>' : ''}
       </div>
     `

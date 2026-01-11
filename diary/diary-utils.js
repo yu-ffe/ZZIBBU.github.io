@@ -431,6 +431,52 @@ export async function storeCalendarEvent(payload, { onError } = {}) {
   return result
 }
 
+export async function updateCalendarEvent(id, payload, { onError } = {}) {
+  let result
+  if (supabase) {
+    const resolved = loadResolved()
+    const cal = resolved.calendar || { table: 'calendar_events', dateKey: 'event_date' }
+
+    const { data, error } = await supabase
+      .from(cal.table)
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (!error) {
+      result = data
+      // 데이터 변경 브로드캐스트
+      broadcastDataChange('calendar', { action: 'update', data: result })
+      return result
+    }
+
+    console.error(error)
+    if (isMissingTableError(error)) {
+      const found = await findWorkingTable(supabase, calendarTableCandidates)
+      if (found) {
+        resolved.calendar = found
+        saveResolved(resolved)
+        return updateCalendarEvent(id, payload, { onError })
+      }
+    }
+
+    supabase = null
+    onError?.('Supabase 연결 오류 - 로컬 데이터로 전환')
+  }
+
+  const local = loadLocalData()
+  const eventIndex = (local.events || []).findIndex((e) => e.id === id)
+  if (eventIndex !== -1) {
+    local.events[eventIndex] = { ...local.events[eventIndex], ...payload }
+    saveLocalData(local)
+    result = local.events[eventIndex]
+    // 데이터 변경 브로드캐스트
+    broadcastDataChange('calendar', { action: 'update', data: result })
+  }
+  return result
+}
+
 export async function deleteCalendarEvent(id, { onError } = {}) {
   if (supabase) {
     const resolved = loadResolved()

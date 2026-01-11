@@ -1,5 +1,6 @@
 import {
   fetchCalendarEvents,
+  updateCalendarEvent,
   formatDate,
   initSyncChannel,
   listenToDataChanges
@@ -218,10 +219,57 @@ class WorkDashboard {
     container.innerHTML = events
       .map((event) => this.createWorkItem(event))
       .join('')
+    
+    // 이벤트 리스너 추가
+    this.attachItemListeners(container)
+  }
+
+  attachItemListeners(container) {
+    // 상태 변경 버튼
+    container.querySelectorAll('.work-item-status').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const item = e.target.closest('.work-item')
+        const eventId = item?.dataset.eventId
+        if (eventId) {
+          this.showStatusMenu(item, eventId)
+        }
+      })
+    })
+
+    // 우선순위 변경 버튼
+    container.querySelectorAll('.work-item-priority-badge').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const item = e.target.closest('.work-item')
+        const eventId = item?.dataset.eventId
+        if (eventId) {
+          this.showPriorityMenu(item, eventId)
+        }
+      })
+    })
+
+    // 카드 클릭 시 수정 모달
+    container.querySelectorAll('.work-item').forEach((item) => {
+      item.addEventListener('click', (e) => {
+        // 상태 버튼이나 우선순위 배지 클릭이 아닐 때만
+        if (!e.target.closest('.work-item-status') && !e.target.closest('.work-item-priority-badge')) {
+          const eventId = item.dataset.eventId
+          if (eventId) {
+            const event = this.state.events.find(e => e.id === eventId)
+            if (event) {
+              this.showEditModal(event)
+            }
+          }
+        }
+      })
+    })
   }
 
   createWorkItem(event) {
     const priorityColor = this.getPriorityColor(event.priority || 'medium')
+    const priorityLabel = this.getPriorityLabel(event.priority || 'medium')
+    const priorityBadge = this.getPriorityBadgeColor(event.priority || 'medium')
     const statusLabel = this.getStatusLabel(event.status || 'todo')
     const statusClass = this.getStatusClass(event.status || 'todo')
     const date = new Date(event.event_date)
@@ -240,11 +288,14 @@ class WorkDashboard {
     }
 
     return `
-      <div class="work-item">
+      <div class="work-item" data-event-id="${event.id}">
         <div class="work-item-header">
           <div class="work-item-priority" style="background: ${priorityColor}"></div>
           <div class="work-item-title">${event.title || '제목 없음'}</div>
-          <span class="work-item-status ${statusClass}">${statusLabel}</span>
+          <div class="work-item-header-right">
+            <span class="work-item-priority-badge" style="background: ${priorityBadge.bg}; color: ${priorityBadge.text}; border-color: ${priorityBadge.border};" title="클릭하여 우선순위 변경">${priorityLabel}</span>
+            <span class="work-item-status ${statusClass}" title="클릭하여 상태 변경">${statusLabel}</span>
+          </div>
         </div>
         <div class="work-item-body">
           ${event.assignee ? `<div class="work-item-meta"><span class="work-item-label">의뢰자:</span> ${event.assignee}</div>` : ''}
@@ -265,6 +316,26 @@ class WorkDashboard {
     return colors[priority] || colors.medium
   }
 
+  getPriorityBadgeColor(priority) {
+    const badgeColors = {
+      low: { bg: '#e8f5e9', text: '#2e7d32', border: '#7FB069' },
+      medium: { bg: '#e3f2fd', text: '#1565c0', border: '#5B9BD5' },
+      high: { bg: '#fff3e0', text: '#e65100', border: '#D4A574' },
+      urgent: { bg: '#fce4ec', text: '#c2185b', border: '#D97794' }
+    }
+    return badgeColors[priority] || badgeColors.medium
+  }
+
+  getPriorityLabel(priority) {
+    const labels = {
+      low: '낮음',
+      medium: '보통',
+      high: '높음',
+      urgent: '긴급'
+    }
+    return labels[priority] || labels.medium
+  }
+
   getStatusLabel(status) {
     const labels = {
       todo: '할 일',
@@ -283,6 +354,219 @@ class WorkDashboard {
       cancelled: 'status-cancelled'
     }
     return classes[status] || 'status-todo'
+  }
+
+  showStatusMenu(item, eventId) {
+    // 기존 메뉴 제거
+    const existingMenu = document.querySelector('.work-status-menu')
+    if (existingMenu) {
+      existingMenu.remove()
+    }
+
+    const statuses = [
+      { value: 'todo', label: '할 일' },
+      { value: 'in_progress', label: '진행 중' },
+      { value: 'done', label: '완료' },
+      { value: 'cancelled', label: '취소' }
+    ]
+
+    const menu = document.createElement('div')
+    menu.className = 'work-status-menu'
+    menu.innerHTML = statuses.map(status => `
+      <button type="button" class="work-status-menu-item" data-status="${status.value}">
+        ${status.label}
+      </button>
+    `).join('')
+
+    const statusBtn = item.querySelector('.work-item-status')
+    const rect = statusBtn.getBoundingClientRect()
+    menu.style.position = 'fixed'
+    menu.style.top = `${rect.bottom + 4}px`
+    menu.style.left = `${rect.left}px`
+    menu.style.zIndex = '1000'
+
+    document.body.appendChild(menu)
+
+    // 메뉴 아이템 클릭
+    menu.querySelectorAll('.work-status-menu-item').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation()
+        const newStatus = btn.dataset.status
+        await this.updateEventStatus(eventId, newStatus)
+        menu.remove()
+      })
+    })
+
+    // 외부 클릭 시 닫기
+    const closeMenu = (e) => {
+      if (!menu.contains(e.target) && e.target !== statusBtn) {
+        menu.remove()
+        document.removeEventListener('click', closeMenu)
+      }
+    }
+    setTimeout(() => {
+      document.addEventListener('click', closeMenu)
+    }, 0)
+  }
+
+  async updateEventStatus(eventId, newStatus) {
+    try {
+      await updateCalendarEvent(eventId, { status: newStatus })
+      // 데이터 다시 로드
+      await this.loadData()
+    } catch (error) {
+      console.error('상태 업데이트 실패:', error)
+      alert('상태 변경에 실패했습니다.')
+    }
+  }
+
+  showPriorityMenu(item, eventId) {
+    // 기존 메뉴 제거
+    const existingMenu = document.querySelector('.work-priority-menu')
+    if (existingMenu) {
+      existingMenu.remove()
+    }
+
+    const priorities = [
+      { value: 'low', label: '낮음' },
+      { value: 'medium', label: '보통' },
+      { value: 'high', label: '높음' },
+      { value: 'urgent', label: '긴급' }
+    ]
+
+    const menu = document.createElement('div')
+    menu.className = 'work-priority-menu'
+    menu.innerHTML = priorities.map(priority => `
+      <button type="button" class="work-priority-menu-item" data-priority="${priority.value}">
+        ${priority.label}
+      </button>
+    `).join('')
+
+    const priorityBtn = item.querySelector('.work-item-priority-badge')
+    const rect = priorityBtn.getBoundingClientRect()
+    menu.style.position = 'fixed'
+    menu.style.top = `${rect.bottom + 4}px`
+    menu.style.left = `${rect.left}px`
+    menu.style.zIndex = '1000'
+
+    document.body.appendChild(menu)
+
+    // 메뉴 아이템 클릭
+    menu.querySelectorAll('.work-priority-menu-item').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation()
+        const newPriority = btn.dataset.priority
+        await this.updateEventPriority(eventId, newPriority)
+        menu.remove()
+      })
+    })
+
+    // 외부 클릭 시 닫기
+    const closeMenu = (e) => {
+      if (!menu.contains(e.target) && e.target !== priorityBtn) {
+        menu.remove()
+        document.removeEventListener('click', closeMenu)
+      }
+    }
+    setTimeout(() => {
+      document.addEventListener('click', closeMenu)
+    }, 0)
+  }
+
+  async updateEventPriority(eventId, newPriority) {
+    try {
+      await updateCalendarEvent(eventId, { priority: newPriority })
+      // 데이터 다시 로드
+      await this.loadData()
+    } catch (error) {
+      console.error('우선순위 업데이트 실패:', error)
+      alert('우선순위 변경에 실패했습니다.')
+    }
+  }
+
+  showEditModal(event) {
+    // 기존 모달 제거
+    const existingModal = document.querySelector('.work-edit-modal')
+    if (existingModal) {
+      existingModal.remove()
+    }
+
+    const modal = document.createElement('div')
+    modal.className = 'work-edit-modal'
+    modal.innerHTML = `
+      <div class="work-edit-overlay"></div>
+      <div class="work-edit-content">
+        <div class="work-edit-header">
+          <h3>작업 수정</h3>
+          <button type="button" class="work-edit-close" aria-label="닫기">×</button>
+        </div>
+        <div class="work-edit-body">
+          <div class="field">
+            <label class="field-label">작업명</label>
+            <input type="text" id="edit-title" value="${(event.title || '').replace(/"/g, '&quot;')}" class="work-edit-input" />
+          </div>
+          <div class="field">
+            <label class="field-label">내용</label>
+            <textarea id="edit-notes" class="work-edit-textarea" rows="4">${(event.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+          </div>
+          <div class="field">
+            <label class="field-label">의뢰자</label>
+            <input type="text" id="edit-assignee" value="${(event.assignee || '').replace(/"/g, '&quot;')}" class="work-edit-input" />
+          </div>
+        </div>
+        <div class="work-edit-actions">
+          <button type="button" class="work-edit-cancel">취소</button>
+          <button type="button" class="work-edit-save">저장</button>
+        </div>
+      </div>
+    `
+
+    document.body.appendChild(modal)
+
+    // 닫기 버튼
+    const closeBtn = modal.querySelector('.work-edit-close')
+    const cancelBtn = modal.querySelector('.work-edit-cancel')
+    const overlay = modal.querySelector('.work-edit-overlay')
+    
+    const closeModal = () => modal.remove()
+    closeBtn?.addEventListener('click', closeModal)
+    cancelBtn?.addEventListener('click', closeModal)
+    overlay?.addEventListener('click', closeModal)
+
+    // 저장 버튼
+    const saveBtn = modal.querySelector('.work-edit-save')
+    saveBtn?.addEventListener('click', async () => {
+      const title = modal.querySelector('#edit-title').value.trim()
+      const notes = modal.querySelector('#edit-notes').value.trim()
+      const assignee = modal.querySelector('#edit-assignee').value.trim()
+
+      if (!title) {
+        alert('작업명을 입력해주세요.')
+        return
+      }
+
+      try {
+        await updateCalendarEvent(event.id, {
+          title,
+          notes: notes || null,
+          assignee: assignee || null
+        })
+        await this.loadData()
+        closeModal()
+      } catch (error) {
+        console.error('작업 수정 실패:', error)
+        alert('작업 수정에 실패했습니다.')
+      }
+    })
+
+    // ESC 키로 닫기
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') {
+        closeModal()
+        document.removeEventListener('keydown', handleEsc)
+      }
+    }
+    document.addEventListener('keydown', handleEsc)
   }
 }
 
