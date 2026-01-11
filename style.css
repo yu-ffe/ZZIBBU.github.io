@@ -1445,8 +1445,8 @@ body:has(.link-cards-container) {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  min-height: 650px;
-  height: 650px;
+  min-height: 800px;
+  height: 90vh;
   width: 100%;
   border: 1.5px solid #ffeaa7;
   box-shadow: 0 8px 32px rgba(255, 234, 167, 0.2);
